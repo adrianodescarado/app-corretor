@@ -32,7 +32,7 @@ export default function Home() {
         <p>Lazer completo + ótima localização</p>
         <strong>R$ 320.000</strong>
 
-        <a href="https://wa.me/5511999999999" target="_blank">
+        <a href="https://wa.me/5511993374417" target="_blank">
           <button style={styles.whatsapp}>Falar no WhatsApp</button>
         </a>
       </div>
