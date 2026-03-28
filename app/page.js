@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+// 🔥 CARROSSEL
 function Carrossel({ imagens }) {
   const [index, setIndex] = useState(0);
 
@@ -23,6 +24,7 @@ function Carrossel({ imagens }) {
   );
 }
 
+// 🔥 PÁGINA PRINCIPAL
 export default function Home() {
   const [start, setStart] = useState(false);
 
@@ -47,8 +49,15 @@ export default function Home() {
     <div style={styles.list}>
       <h1 style={{ textAlign: "center" }}>Imóveis Selecionados</h1>
 
+      {/* 🏠 IMÓVEL 1 */}
       <div style={styles.item}>
-        <Carrossel imagens={["/imovel1.jpg", "/imovel2.jpg", "/imovel3.jpg"]} />
+        <Carrossel
+          imagens={[
+            "/imovel1.jpg",
+            "/imovel1-2.jpg",
+            "/imovel1-3.jpg"
+          ]}
+        />
         <h2>Apartamento 2 Dorms</h2>
         <p>Lazer completo + ótima localização</p>
         <strong>R$ 320.000</strong>
@@ -58,8 +67,15 @@ export default function Home() {
         </a>
       </div>
 
+      {/* 🏠 IMÓVEL 2 */}
       <div style={styles.item}>
-        <Carrossel imagens={["/imovel2.jpg", "/imovel3.jpg", "/imovel1.jpg"]} />
+        <Carrossel
+          imagens={[
+            "/imovel2.jpg",
+            "/imovel2-2.jpg",
+            "/imovel2-3.jpg"
+          ]}
+        />
         <h2>Apartamento 3 Dorms</h2>
         <p>Varanda gourmet + vaga coberta</p>
         <strong>R$ 450.000</strong>
@@ -72,6 +88,7 @@ export default function Home() {
   );
 }
 
+// 🎨 ESTILOS
 const styles = {
   container: {
     display: "flex",
