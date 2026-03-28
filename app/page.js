@@ -2,6 +2,27 @@
 
 import { useState } from "react";
 
+function Carrossel({ imagens }) {
+  const [index, setIndex] = useState(0);
+
+  function prev() {
+    setIndex((index - 1 + imagens.length) % imagens.length);
+  }
+
+  function next() {
+    setIndex((index + 1) % imagens.length);
+  }
+
+  return (
+    <div style={styles.carousel}>
+      <img src={imagens[index]} style={styles.image} />
+
+      <button onClick={prev} style={styles.prev}>‹</button>
+      <button onClick={next} style={styles.next}>›</button>
+    </div>
+  );
+}
+
 export default function Home() {
   const [start, setStart] = useState(false);
 
@@ -27,7 +48,7 @@ export default function Home() {
       <h1 style={{ textAlign: "center" }}>Imóveis Selecionados</h1>
 
       <div style={styles.item}>
-        <img src="/imovel1.jpg" style={styles.image} />
+        <Carrossel imagens={["/imovel1.jpg", "/imovel2.jpg", "/imovel3.jpg"]} />
         <h2>Apartamento 2 Dorms</h2>
         <p>Lazer completo + ótima localização</p>
         <strong>R$ 320.000</strong>
@@ -38,7 +59,7 @@ export default function Home() {
       </div>
 
       <div style={styles.item}>
-        <img src="/imovel2.jpg" style={styles.image} />
+        <Carrossel imagens={["/imovel2.jpg", "/imovel3.jpg", "/imovel1.jpg"]} />
         <h2>Apartamento 3 Dorms</h2>
         <p>Varanda gourmet + vaga coberta</p>
         <strong>R$ 450.000</strong>
@@ -100,6 +121,33 @@ const styles = {
     width: "100%",
     borderRadius: 12,
     marginBottom: 10,
+  },
+  carousel: {
+    position: "relative",
+  },
+  prev: {
+    position: "absolute",
+    top: "50%",
+    left: 10,
+    transform: "translateY(-50%)",
+    background: "rgba(0,0,0,0.5)",
+    color: "#fff",
+    border: "none",
+    padding: "8px 12px",
+    borderRadius: 8,
+    cursor: "pointer",
+  },
+  next: {
+    position: "absolute",
+    top: "50%",
+    right: 10,
+    transform: "translateY(-50%)",
+    background: "rgba(0,0,0,0.5)",
+    color: "#fff",
+    border: "none",
+    padding: "8px 12px",
+    borderRadius: 8,
+    cursor: "pointer",
   },
   whatsapp: {
     marginTop: 10,
