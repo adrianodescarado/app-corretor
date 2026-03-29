@@ -1,268 +1,217 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+"use client";
+import { useState, useEffect, useRef } from "react";
 
-<title>Imóveis Premium</title>
+export default function Home() {
+  const [start, setStart] = useState(false);
+  const [index, setIndex] = useState([0, 0]);
+  const [pessoas, setPessoas] = useState([8, 6]);
 
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f2f2f2;
-}
+  const startX = useRef(0);
 
-/* TELA INICIAL */
-.hero{
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+  const imagens = [
+    ["/imovel1-1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"],
+    ["/imovel2-1.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"],
+  ];
 
-.card{
-  background:linear-gradient(135deg,#fff,#eef3ff);
-  padding:30px;
-  border-radius:20px;
-  text-align:center;
-  width:320px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.1);
-}
+  /* AUTOPLAY */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) =>
+        prev.map((i, idx) => (i + 1) % imagens[idx].length)
+      );
+    }, 3000);
 
-.card img{
-  width:100px;
-  height:100px;
-  border-radius:50%;
-  border:3px solid #0070f3;
-}
+    return () => clearInterval(interval);
+  }, []);
 
-.btn{
-  margin-top:20px;
-  padding:15px;
-  background:#0070f3;
-  color:#fff;
-  border:none;
-  border-radius:12px;
-  width:100%;
-  font-weight:bold;
-  cursor:pointer;
-}
+  /* ESCASSEZ */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPessoas((prev) =>
+        prev.map((p) => {
+          let novo = p + (Math.random() > 0.5 ? 1 : -1);
+          if (novo < 5) novo = 5;
+          if (novo > 15) novo = 15;
+          return novo;
+        })
+      );
+    }, 2000);
 
-/* IMÓVEIS */
-.container{
-  display:none;
-  padding:20px;
-}
+    return () => clearInterval(interval);
+  }, []);
 
-.imovel{
-  background:#fff;
-  border-radius:15px;
-  margin-bottom:20px;
-  overflow:hidden;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-.carousel{
-  position:relative;
-  overflow:hidden;
-}
-
-.carousel img{
-  width:100%;
-  display:none;
-}
-
-.carousel img.active{
-  display:block;
-}
-
-/* bolinhas */
-.dots{
-  text-align:center;
-  position:absolute;
-  bottom:10px;
-  width:100%;
-}
-
-.dot{
-  height:8px;
-  width:8px;
-  margin:3px;
-  background:#fff;
-  border-radius:50%;
-  display:inline-block;
-  opacity:0.5;
-}
-
-.dot.active{
-  opacity:1;
-}
-
-/* info */
-.info{
-  padding:15px;
-}
-
-.whats{
-  display:block;
-  margin-top:10px;
-  background:green;
-  color:#fff;
-  text-align:center;
-  padding:12px;
-  border-radius:10px;
-  text-decoration:none;
-  font-weight:bold;
-}
-</style>
-</head>
-
-<body>
-
-<!-- TELA INICIAL -->
-<div class="hero" id="hero">
-  <div class="card">
-    <img src="corretor.jpg">
-    <h2>Encontre seu imóvel ideal</h2>
-    <p>Selecionamos as melhores oportunidades 👇</p>
-    <p>⭐ +120 clientes atendidos</p>
-    <button class="btn" onclick="entrar()">Ver imóveis</button>
-  </div>
-</div>
-
-<!-- IMÓVEIS -->
-<div class="container" id="app">
-
-  <!-- IMÓVEL 1 -->
-  <div class="imovel">
-    <div class="carousel" ontouchstart="startTouch(event,0)" ontouchend="endTouch(event,0)">
-      <img src="imovel1-1.jpg" class="active">
-      <img src="imovel1-2.jpg">
-      <img src="imovel1-3.jpg">
-      <div class="dots"></div>
-    </div>
-
-    <div class="info">
-      <h3>Casa moderna</h3>
-      <p>💰 R$ 250.000</p>
-      <p id="pessoas0">👀 8 pessoas vendo agora</p>
-      <a class="whats" href="https://wa.me/5511999999999?text=Tenho%20interesse%20no%20imóvel">
-        Falar no WhatsApp
-      </a>
-    </div>
-  </div>
-
-  <!-- IMÓVEL 2 -->
-  <div class="imovel">
-    <div class="carousel" ontouchstart="startTouch(event,1)" ontouchend="endTouch(event,1)">
-      <img src="imovel2-1.jpg" class="active">
-      <img src="imovel2-2.jpg">
-      <img src="imovel2-3.jpg">
-      <div class="dots"></div>
-    </div>
-
-    <div class="info">
-      <h3>Apartamento</h3>
-      <p>💰 R$ 180.000</p>
-      <p id="pessoas1">👀 6 pessoas vendo agora</p>
-      <a class="whats" href="https://wa.me/5511999999999?text=Tenho%20interesse%20no%20imóvel">
-        Falar no WhatsApp
-      </a>
-    </div>
-  </div>
-
-</div>
-
-<script>
-
-/* ENTRAR */
-function entrar(){
-  document.getElementById("hero").style.display="none";
-  document.getElementById("app").style.display="block";
-}
-
-/* CARROSSEL */
-let index=[0,0];
-let startX=0;
-
-function showSlide(i){
-  let carousel = document.querySelectorAll(".carousel")[i];
-  let imgs = carousel.querySelectorAll("img");
-  let dotsDiv = carousel.querySelector(".dots");
-
-  dotsDiv.innerHTML="";
-
-  imgs.forEach((img,idx)=>{
-    img.classList.remove("active");
-
-    let dot=document.createElement("span");
-    dot.classList.add("dot");
-
-    if(idx===index[i]){
-      img.classList.add("active");
-      dot.classList.add("active");
-    }
-
-    dotsDiv.appendChild(dot);
-  });
-}
-
-function startTouch(e){
-  startX=e.changedTouches[0].screenX;
-}
-
-function endTouch(e,i){
-  let endX=e.changedTouches[0].screenX;
-
-  if(startX>endX){
-    index[i]++;
-  }else{
-    index[i]--;
+  function handleTouchStart(e) {
+    startX.current = e.changedTouches[0].screenX;
   }
 
-  let imgs=document.querySelectorAll(".carousel")[i].querySelectorAll("img");
+  function handleTouchEnd(e, i) {
+    let endX = e.changedTouches[0].screenX;
 
-  if(index[i]<0) index[i]=imgs.length-1;
-  if(index[i]>=imgs.length) index[i]=0;
+    setIndex((prev) => {
+      const novo = [...prev];
 
-  showSlide(i);
+      if (startX.current > endX) {
+        novo[i]++;
+      } else {
+        novo[i]--;
+      }
+
+      if (novo[i] < 0) novo[i] = imagens[i].length - 1;
+      if (novo[i] >= imagens[i].length) novo[i] = 0;
+
+      return novo;
+    });
+  }
+
+  if (!start) {
+    return (
+      <div style={styles.hero}>
+        <div style={styles.card}>
+          <img src="/corretor.jpg" style={styles.avatar} />
+          <h2>Encontre seu imóvel ideal</h2>
+          <p>Selecionamos as melhores oportunidades 👇</p>
+          <p>⭐ +120 clientes atendidos</p>
+
+          <button style={styles.btn} onClick={() => setStart(true)}>
+            Ver imóveis
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={styles.container}>
+      {[0, 1].map((i) => (
+        <div key={i} style={styles.imovel}>
+          <div
+            style={styles.carousel}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={(e) => handleTouchEnd(e, i)}
+          >
+            <img
+              src={imagens[i][index[i]]}
+              style={styles.img}
+            />
+
+            <div style={styles.dots}>
+              {imagens[i].map((_, idx) => (
+                <span
+                  key={idx}
+                  style={{
+                    ...styles.dot,
+                    opacity: idx === index[i] ? 1 : 0.3,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div style={styles.info}>
+            <h3>{i === 0 ? "Casa moderna" : "Apartamento"}</h3>
+            <p>💰 {i === 0 ? "R$ 250.000" : "R$ 180.000"}</p>
+            <p>👀 {pessoas[i]} pessoas vendo agora</p>
+
+            <a
+              style={styles.whats}
+              href="https://wa.me/5511999999999?text=Tenho%20interesse%20no%20imóvel"
+              target="_blank"
+            >
+              Falar no WhatsApp
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
-/* AUTOPLAY CORRIGIDO */
-setInterval(()=>{
-  document.querySelectorAll(".carousel").forEach((c,i)=>{
-    let imgs=c.querySelectorAll("img");
-    index[i]=(index[i]+1)%imgs.length;
-    showSlide(i);
-  });
-},3000);
+const styles = {
+  hero: {
+    height: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-/* ESCASSEZ CORRIGIDA */
-function atualizarPessoas(id){
-  let el=document.getElementById("pessoas"+id);
+  card: {
+    background: "linear-gradient(135deg,#fff,#eef3ff)",
+    padding: 30,
+    borderRadius: 20,
+    textAlign: "center",
+    width: 320,
+    boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
+  },
 
-  let match = el.innerText.match(/\d+/);
-  let num = match ? parseInt(match[0]) : 10;
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: "50%",
+    border: "3px solid #0070f3",
+  },
 
-  let novo=num+(Math.random()>0.5?1:-1);
+  btn: {
+    marginTop: 20,
+    padding: 15,
+    background: "#0070f3",
+    color: "#fff",
+    border: "none",
+    borderRadius: 12,
+    width: "100%",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
 
-  if(novo<5) novo=5;
-  if(novo>15) novo=15;
+  container: {
+    padding: 20,
+    background: "#f2f2f2",
+  },
 
-  el.innerText="👀 "+novo+" pessoas vendo agora";
-}
+  imovel: {
+    background: "#fff",
+    borderRadius: 15,
+    marginBottom: 20,
+    overflow: "hidden",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+  },
 
-setInterval(()=>{
-  atualizarPessoas(0);
-  atualizarPessoas(1);
-},2000);
+  carousel: {
+    position: "relative",
+  },
 
-/* INICIAR */
-showSlide(0);
-showSlide(1);
+  img: {
+    width: "100%",
+  },
 
-</script>
+  dots: {
+    position: "absolute",
+    bottom: 10,
+    width: "100%",
+    textAlign: "center",
+  },
 
-</body>
-</html>
+  dot: {
+    height: 8,
+    width: 8,
+    margin: 3,
+    background: "#fff",
+    borderRadius: "50%",
+    display: "inline-block",
+  },
+
+  info: {
+    padding: 15,
+  },
+
+  whats: {
+    display: "block",
+    marginTop: 10,
+    background: "green",
+    color: "#fff",
+    textAlign: "center",
+    padding: 12,
+    borderRadius: 10,
+    textDecoration: "none",
+    fontWeight: "bold",
+  },
+};
