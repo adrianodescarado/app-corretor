@@ -3,9 +3,19 @@ import { useState, useEffect } from "react";
 
 export default function Home() {
   const [start, setStart] = useState(false);
+  const [modal, setModal] = useState(null);
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
 
-  /* ESCASSEZ */
-  const [pessoas, setPessoas] = useState([8, 6]);
+  const [favoritos, setFavoritos] = useState([false, false]);
+  const [indexImg, setIndexImg] = useState([0, 0]);
+
+  const imagens = [
+    ["/imovel1-1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"],
+    ["/imovel2-1.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"],
+  ];
+
+  const [pessoas, setPessoas] = useState([12, 8]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -13,7 +23,7 @@ export default function Home() {
         prev.map((p) => {
           let novo = p + (Math.random() > 0.5 ? 1 : -1);
           if (novo < 5) novo = 5;
-          if (novo > 15) novo = 15;
+          if (novo > 20) novo = 20;
           return novo;
         })
       );
@@ -22,68 +32,44 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  /* CARROSSEL */
-  const [index, setIndex] = useState([0, 0]);
-  const [touchStart, setTouchStart] = useState(0);
-
-  const images = [
-    ["/imovel1-1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"],
-    ["/imovel2-1.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"],
-  ];
-
-  const next = (i) => {
-    setIndex((prev) =>
-      prev.map((v, idx) =>
-        idx === i ? (v + 1) % images[i].length : v
-      )
-    );
-  };
-
   useEffect(() => {
     const interval = setInterval(() => {
-      next(0);
-      next(1);
+      setIndexImg((prev) =>
+        prev.map((i, idx) => (i + 1) % imagens[idx].length)
+      );
     }, 3000);
+
     return () => clearInterval(interval);
   }, []);
 
-  const handleTouchStart = (e) => {
-    setTouchStart(e.touches[0].clientX);
-  };
+  function toggleFavorito(i) {
+    const novos = [...favoritos];
+    novos[i] = !novos[i];
+    setFavoritos(novos);
+  }
 
-  const handleTouchEnd = (e, i) => {
-    const end = e.changedTouches[0].clientX;
+  function enviarWhatsApp() {
+    const texto = `Olá! Tenho interesse no imóvel: ${modal}%0A Nome: ${nome}%0A Telefone: ${telefone}`;
+    window.open(`https://wa.me/5511999999999?text=${texto}`);
+  }
 
-    if (touchStart > end) next(i);
-    else
-      setIndex((prev) =>
-        prev.map((v, idx) =>
-          idx === i
-            ? v === 0
-              ? images[i].length - 1
-              : v - 1
-            : v
-        )
-      );
-  };
-
-  /* TELA INICIAL */
   if (!start) {
     return (
       <div style={styles.hero}>
         <div style={styles.card}>
           <img src="/corretor.jpg" style={styles.avatar} />
-
-          <h2>Encontre seu imóvel ideal</h2>
-          <p>Selecionamos as melhores oportunidades 👇</p>
+          <h1>Encontre seu imóvel ideal</h1>
+          <p>Oportunidades com alta procura 👇</p>
 
           <div style={styles.badge}>
             ⭐ +120 clientes atendidos
           </div>
 
-          <button onClick={() => setStart(true)} style={styles.btn}>
+          <button onClick={() => setStart(true)} style={styles.button}>
             Ver imóveis
           </button>
+
+          <p style={{ fontSize: 12 }}>🔥 Atualizado agora</p>
         </div>
       </div>
     );
@@ -93,114 +79,132 @@ export default function Home() {
     <div style={styles.container}>
       {[0, 1].map((i) => (
         <div key={i} style={styles.imovel}>
-          
-          {/* CARROSSEL */}
-          <div
-            style={styles.carousel}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={(e) => handleTouchEnd(e, i)}
-          >
-            {images[i].map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                style={{
-                  ...styles.img,
-                  display: index[i] === idx ? "block" : "none",
-                }}
-              />
-            ))}
+          <div style={styles.carousel}>
+            <img
+              src={imagens[i][indexImg[i]]}
+              style={styles.img}
+            />
 
-            {/* BOLINHAS */}
-            <div style={styles.dots}>
-              {images[i].map((_, d) => (
+            <div style={styles.bolinhas}>
+              {imagens[i].map((_, idx) => (
                 <span
-                  key={d}
+                  key={idx}
                   style={{
-                    ...styles.dot,
-                    opacity: index[i] === d ? 1 : 0.4,
+                    ...styles.bolinha,
+                    opacity: idx === indexImg[i] ? 1 : 0.3,
                   }}
                 />
               ))}
             </div>
+
+            <div
+              style={styles.coracao}
+              onClick={() => toggleFavorito(i)}
+            >
+              {favoritos[i] ? "❤️" : "🤍"}
+            </div>
           </div>
 
-          {/* INFO */}
-          <div style={styles.info}>
-            <h3>{i === 0 ? "Casa moderna" : "Apartamento"}</h3>
-            <p>💰 {i === 0 ? "R$ 250.000" : "R$ 180.000"}</p>
+          <h2>{i === 0 ? "Ap 2 Dorms" : "Casa com suíte"}</h2>
 
-            <p>
-              🔥 Últimas unidades | 👀 {pessoas[i]} pessoas vendo agora
-            </p>
+          <p>
+            🔥 {i === 0 ? "Últimas unidades" : "Alta procura"} | 👀{" "}
+            {pessoas[i]} pessoas vendo agora
+          </p>
 
-            <a style={styles.whats} href="#">
-              Falar no WhatsApp
-            </a>
-          </div>
+          <button
+            onClick={() =>
+              setModal(i === 0 ? "Ap 2 Dorms" : "Casa com suíte")
+            }
+            style={styles.button}
+          >
+            Falar no WhatsApp
+          </button>
         </div>
       ))}
+
+      <div style={styles.depoimento}>
+        <p>
+          “Consegui meu apê em 3 dias! Atendimento rápido demais.”
+        </p>
+        <strong>- Cliente satisfeito</strong>
+      </div>
+
+      {/* BOTÃO FLUTUANTE */}
+      <a
+        href="https://wa.me/5511999999999"
+        style={styles.floating}
+      >
+        💬
+      </a>
+
+      {/* MODAL */}
+      {modal && (
+        <div style={styles.overlay}>
+          <div style={styles.modal}>
+            <h3>Preencha para continuar</h3>
+
+            <input
+              placeholder="Seu nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              style={styles.input}
+            />
+
+            <input
+              placeholder="Telefone"
+              value={telefone}
+              onChange={(e) => setTelefone(e.target.value)}
+              style={styles.input}
+            />
+
+            <button onClick={enviarWhatsApp} style={styles.button}>
+              Continuar no WhatsApp
+            </button>
+
+            <button onClick={() => setModal(null)}>
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-/* ESTILO */
 const styles = {
+  container: { padding: 20 },
+
   hero: {
-    height: "100vh",
     display: "flex",
-    alignItems: "center",
+    height: "100vh",
     justifyContent: "center",
-    background: "#f2f2f2",
+    alignItems: "center",
   },
 
   card: {
-    background: "linear-gradient(135deg,#fff,#eef3ff)",
-    padding: 30,
-    borderRadius: 20,
     textAlign: "center",
-    width: 320,
-    boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
+    padding: 20,
+    borderRadius: 10,
+    boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
   },
 
   avatar: {
-    width: 100,
-    height: 100,
+    width: 80,
     borderRadius: "50%",
-    border: "3px solid #0070f3",
-    objectFit: "cover",
   },
 
   badge: {
-    marginTop: 10,
-    background: "#fff",
-    padding: 8,
-    borderRadius: 10,
-    fontSize: 13,
-  },
-
-  btn: {
-    marginTop: 20,
-    padding: 15,
-    background: "#0070f3",
-    color: "#fff",
-    border: "none",
-    borderRadius: 12,
-    width: "100%",
-    fontWeight: "bold",
-  },
-
-  container: {
-    padding: 20,
-    background: "#f2f2f2",
+    background: "#eee",
+    padding: 5,
+    margin: 10,
+    borderRadius: 5,
   },
 
   imovel: {
-    background: "#fff",
-    borderRadius: 15,
-    marginBottom: 20,
-    overflow: "hidden",
-    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+    marginBottom: 40,
+    borderBottom: "1px solid #ccc",
+    paddingBottom: 20,
   },
 
   carousel: {
@@ -209,37 +213,85 @@ const styles = {
 
   img: {
     width: "100%",
+    borderRadius: 10,
   },
 
-  dots: {
+  bolinhas: {
     position: "absolute",
     bottom: 10,
-    width: "100%",
-    textAlign: "center",
+    left: "50%",
+    transform: "translateX(-50%)",
+    display: "flex",
+    gap: 5,
   },
 
-  dot: {
-    height: 8,
+  bolinha: {
     width: 8,
-    margin: 3,
+    height: 8,
     background: "#fff",
     borderRadius: "50%",
-    display: "inline-block",
   },
 
-  info: {
-    padding: 15,
+  coracao: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    fontSize: 24,
+    cursor: "pointer",
   },
 
-  whats: {
-    display: "block",
+  button: {
+    padding: 10,
     marginTop: 10,
+    background: "#0070f3",
+    color: "#fff",
+    border: "none",
+    borderRadius: 5,
+    cursor: "pointer",
+    boxShadow: "0 5px 15px rgba(0,112,243,0.4)",
+  },
+
+  depoimento: {
+    marginTop: 30,
+    padding: 20,
+    background: "#f5f5f5",
+    borderRadius: 10,
+    textAlign: "center",
+  },
+
+  floating: {
+    position: "fixed",
+    bottom: 20,
+    right: 20,
     background: "green",
     color: "#fff",
-    textAlign: "center",
-    padding: 12,
-    borderRadius: 10,
+    padding: 15,
+    borderRadius: "50%",
     textDecoration: "none",
-    fontWeight: "bold",
+  },
+
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modal: {
+    background: "#fff",
+    padding: 20,
+    borderRadius: 10,
+  },
+
+  input: {
+    display: "block",
+    marginBottom: 10,
+    padding: 10,
+    width: "100%",
   },
 };
