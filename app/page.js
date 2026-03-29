@@ -1,195 +1,259 @@
-"use client";
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-import { useState, useEffect } from "react";
+<title>Imóveis Premium</title>
 
-// 🔥 CARROSSEL
-function Carrossel({ imagens, abrirGaleria }) {
-  const [index, setIndex] = useState(0);
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f2f2f2;
+}
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % imagens.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [imagens.length]);
+/* TELA INICIAL */
+.hero{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
-  let startX = 0;
+.card{
+  background:linear-gradient(135deg,#fff,#eef3ff);
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+  width:320px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.1);
+}
 
-  function handleTouchStart(e) {
-    startX = e.touches[0].clientX;
-  }
+.card img{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  border:3px solid #0070f3;
+}
 
-  function handleTouchEnd(e) {
-    let endX = e.changedTouches[0].clientX;
+.btn{
+  margin-top:20px;
+  padding:15px;
+  background:#0070f3;
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  width:100%;
+  font-weight:bold;
+}
 
-    if (startX - endX > 50) setIndex((p) => (p + 1) % imagens.length);
-    if (endX - startX > 50) setIndex((p) => (p - 1 + imagens.length) % imagens.length);
-  }
+/* IMÓVEIS */
+.container{
+  display:none;
+  padding:20px;
+}
 
-  return (
-    <div
-      style={styles.carousel}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onClick={() => abrirGaleria(imagens, index)}
-    >
-      <img src={imagens[index]} style={styles.image} />
+.imovel{
+  background:#fff;
+  border-radius:15px;
+  margin-bottom:20px;
+  overflow:hidden;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
 
-      <div style={styles.counter}>
-        {index + 1}/{imagens.length}
-      </div>
+.carousel{
+  position:relative;
+  overflow:hidden;
+}
 
-      <div style={styles.overlay}>Ver fotos</div>
+.carousel img{
+  width:100%;
+  display:none;
+}
+
+.carousel img.active{
+  display:block;
+}
+
+/* bolinhas */
+.dots{
+  text-align:center;
+  position:absolute;
+  bottom:10px;
+  width:100%;
+}
+
+.dot{
+  height:8px;
+  width:8px;
+  margin:3px;
+  background:#fff;
+  border-radius:50%;
+  display:inline-block;
+  opacity:0.5;
+}
+
+.dot.active{
+  opacity:1;
+}
+
+/* info */
+.info{
+  padding:15px;
+}
+
+.whats{
+  display:block;
+  margin-top:10px;
+  background:green;
+  color:#fff;
+  text-align:center;
+  padding:12px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TELA INICIAL -->
+<div class="hero" id="hero">
+  <div class="card">
+    <img src="corretor.jpg">
+    <h2>Encontre seu imóvel ideal</h2>
+    <p>Selecionamos as melhores oportunidades 👇</p>
+    <p>⭐ +120 clientes atendidos</p>
+    <button class="btn" onclick="entrar()">Ver imóveis</button>
+  </div>
+</div>
+
+<!-- IMÓVEIS -->
+<div class="container" id="app">
+
+  <!-- IMÓVEL 1 -->
+  <div class="imovel">
+    <div class="carousel" ontouchstart="startTouch(event,0)" ontouchend="endTouch(event,0)">
+      <img src="imovel1-1.jpg" class="active">
+      <img src="imovel1-2.jpg">
+      <img src="imovel1-3.jpg">
+
+      <div class="dots"></div>
     </div>
-  );
-}
 
-// 🔥 GALERIA
-function Galeria({ imagens, indexInicial, fechar }) {
-  const [index, setIndex] = useState(indexInicial);
-
-  return (
-    <div style={styles.fullscreen}>
-      <img src={imagens[index]} style={styles.fullImage} />
-
-      <button onClick={fechar} style={styles.close}>X</button>
-      <button onClick={() => setIndex((index - 1 + imagens.length) % imagens.length)} style={styles.prev}>‹</button>
-      <button onClick={() => setIndex((index + 1) % imagens.length)} style={styles.next}>›</button>
+    <div class="info">
+      <h3>Casa moderna</h3>
+      <p>💰 R$ 250.000</p>
+      <p id="pessoas0">👀 8 pessoas vendo agora</p>
+      <a class="whats" href="#">Falar no WhatsApp</a>
     </div>
-  );
-}
+  </div>
 
-// 🔥 FORM MODAL
-function Formulario({ imovel, fechar }) {
-  const [nome, setNome] = useState("");
-  const [telefone, setTelefone] = useState("");
+  <!-- IMÓVEL 2 -->
+  <div class="imovel">
+    <div class="carousel" ontouchstart="startTouch(event,1)" ontouchend="endTouch(event,1)">
+      <img src="imovel2-1.jpg" class="active">
+      <img src="imovel2-2.jpg">
+      <img src="imovel2-3.jpg">
 
-  function enviar() {
-    const msg = `Olá, sou ${nome}, telefone ${telefone}. Tenho interesse no ${imovel}`;
-    window.open(`https://wa.me/5511993374417?text=${encodeURIComponent(msg)}`);
-  }
-
-  return (
-    <div style={styles.modal}>
-      <div style={styles.modalBox}>
-        <h3>Falar com corretor</h3>
-
-        <input placeholder="Seu nome" onChange={(e) => setNome(e.target.value)} style={styles.input} />
-        <input placeholder="Seu telefone" onChange={(e) => setTelefone(e.target.value)} style={styles.input} />
-
-        <button onClick={enviar} style={styles.whatsapp}>Enviar</button>
-        <button onClick={fechar} style={styles.closeBtn}>Cancelar</button>
-      </div>
+      <div class="dots"></div>
     </div>
-  );
+
+    <div class="info">
+      <h3>Apartamento</h3>
+      <p>💰 R$ 180.000</p>
+      <p id="pessoas1">👀 6 pessoas vendo agora</p>
+      <a class="whats" href="#">Falar no WhatsApp</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+/* ENTRAR */
+function entrar(){
+  document.getElementById("hero").style.display="none";
+  document.getElementById("app").style.display="block";
 }
 
-// 🔥 APP
-export default function Home() {
-  const [start, setStart] = useState(false);
-  const [galeria, setGaleria] = useState(null);
-  const [modal, setModal] = useState(null);
+/* CARROSSEL */
+let index=[0,0];
+let startX=0;
 
-  function abrirGaleria(imagens, index) {
-    setGaleria({ imagens, index });
-  }
+function showSlide(carouselIndex){
+  let carousels=document.querySelectorAll(".carousel")[carouselIndex];
+  let imgs=carousels.querySelectorAll("img");
+  let dotsDiv=carousels.querySelector(".dots");
 
-  if (!start) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.card}>
-          <img src="/corretor.jpg" style={styles.avatar} />
-          <h1>Seu Corretor</h1>
-          <p>Separei imóveis pra você 👇</p>
+  dotsDiv.innerHTML="";
 
-          <button onClick={() => setStart(true)} style={styles.button}>
-            Ver imóveis
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div style={styles.list}>
-        <h1 style={styles.title}>Imóveis disponíveis</h1>
-
-        {/* IMÓVEL 1 */}
-        <div style={styles.item}>
-          <Carrossel
-            imagens={["/imovel1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"]}
-            abrirGaleria={abrirGaleria}
-          />
-
-          <h2>Apartamento 2 Dorms</h2>
-          <p>🔥 Últimas unidades | 👀 12 pessoas vendo</p>
-          <strong>R$ 320.000</strong>
-
-          <button onClick={() => setModal("Ap 2 Dorms - 320k")} style={styles.whatsapp}>
-            Falar com corretor
-          </button>
-        </div>
-
-        {/* IMÓVEL 2 */}
-        <div style={styles.item}>
-          <Carrossel
-            imagens={["/imovel2.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"]}
-            abrirGaleria={abrirGaleria}
-          />
-
-          <h2>Apartamento 3 Dorms</h2>
-          <p>🔥 Alta procura | 👀 8 pessoas vendo</p>
-          <strong>R$ 450.000</strong>
-
-          <button onClick={() => setModal("Ap 3 Dorms - 450k")} style={styles.whatsapp}>
-            Falar com corretor
-          </button>
-        </div>
-      </div>
-
-      {/* MODAL FORM */}
-      {modal && <Formulario imovel={modal} fechar={() => setModal(null)} />}
-
-      {/* GALERIA */}
-      {galeria && (
-        <Galeria
-          imagens={galeria.imagens}
-          indexInicial={galeria.index}
-          fechar={() => setGaleria(null)}
-        />
-      )}
-    </>
-  );
+  imgs.forEach((img,i)=>{
+    img.classList.remove("active");
+    
+    let dot=document.createElement("span");
+    dot.classList.add("dot");
+    if(i===index[carouselIndex]){
+      img.classList.add("active");
+      dot.classList.add("active");
+    }
+    dotsDiv.appendChild(dot);
+  });
 }
 
-// 🎨 ESTILO
-const styles = {
-  container: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" },
-  card: { background: "#fff", padding: 20, borderRadius: 16, width: 300, textAlign: "center" },
-  avatar: { width: 100, borderRadius: "50%" },
-  button: { marginTop: 10, padding: 12, width: "100%", background: "#0070f3", color: "#fff", border: "none", borderRadius: 10 },
+function startTouch(e,i){
+  startX=e.changedTouches[0].screenX;
+}
 
-  list: { padding: 20 },
-  title: { textAlign: "center" },
+function endTouch(e,i){
+  let endX=e.changedTouches[0].screenX;
 
-  item: { background: "#fff", padding: 15, borderRadius: 16, marginBottom: 20 },
+  if(startX>endX){
+    index[i]++;
+  }else{
+    index[i]--;
+  }
 
-  carousel: { position: "relative" },
-  image: { width: "100%", borderRadius: 12 },
-  counter: { position: "absolute", top: 10, right: 10, background: "#000", color: "#fff", padding: "4px 8px", borderRadius: 8 },
-  overlay: { position: "absolute", bottom: 10, left: 10, background: "rgba(0,0,0,0.5)", color: "#fff", padding: "5px 10px", borderRadius: 8 },
+  let imgs=document.querySelectorAll(".carousel")[i].querySelectorAll("img");
 
-  whatsapp: { marginTop: 10, width: "100%", padding: 12, background: "#25D366", color: "#fff", border: "none", borderRadius: 10 },
+  if(index[i]<0) index[i]=imgs.length-1;
+  if(index[i]>=imgs.length) index[i]=0;
 
-  fullscreen: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#000", display: "flex", justifyContent: "center", alignItems: "center" },
-  fullImage: { width: "100%" },
-  close: { position: "absolute", top: 20, right: 20, background: "#fff", border: "none" },
-  prev: { position: "absolute", left: 10, top: "50%", background: "#fff", border: "none" },
-  next: { position: "absolute", right: 10, top: "50%", background: "#fff", border: "none" },
+  showSlide(i);
+}
 
-  modal: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center" },
-  modalBox: { background: "#fff", padding: 20, borderRadius: 12, width: 300 },
-  input: { width: "100%", padding: 10, marginTop: 10, borderRadius: 8, border: "1px solid #ccc" },
-  closeBtn: { marginTop: 10, width: "100%" },
-};
+/* AUTOPLAY */
+setInterval(()=>{
+  index[0]++;
+  index[1]++;
+  showSlide(0);
+  showSlide(1);
+},3000);
+
+/* ESCASSEZ */
+function atualizarPessoas(id){
+  let el=document.getElementById("pessoas"+id);
+  let num=parseInt(el.innerText.match(/\d+/));
+
+  let novo=num+(Math.random()>0.5?1:-1);
+  if(novo<5) novo=5;
+  if(novo>15) novo=15;
+
+  el.innerText="👀 "+novo+" pessoas vendo agora";
+}
+
+setInterval(()=>{
+  atualizarPessoas(0);
+  atualizarPessoas(1);
+},2000);
+
+/* INICIAR */
+showSlide(0);
+showSlide(1);
+
+</script>
+
+</body>
+</html>
