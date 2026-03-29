@@ -46,6 +46,7 @@ body{
   border-radius:12px;
   width:100%;
   font-weight:bold;
+  cursor:pointer;
 }
 
 /* IMÓVEIS */
@@ -139,7 +140,6 @@ body{
       <img src="imovel1-1.jpg" class="active">
       <img src="imovel1-2.jpg">
       <img src="imovel1-3.jpg">
-
       <div class="dots"></div>
     </div>
 
@@ -147,7 +147,9 @@ body{
       <h3>Casa moderna</h3>
       <p>💰 R$ 250.000</p>
       <p id="pessoas0">👀 8 pessoas vendo agora</p>
-      <a class="whats" href="#">Falar no WhatsApp</a>
+      <a class="whats" href="https://wa.me/5511999999999?text=Tenho%20interesse%20no%20imóvel">
+        Falar no WhatsApp
+      </a>
     </div>
   </div>
 
@@ -157,7 +159,6 @@ body{
       <img src="imovel2-1.jpg" class="active">
       <img src="imovel2-2.jpg">
       <img src="imovel2-3.jpg">
-
       <div class="dots"></div>
     </div>
 
@@ -165,7 +166,9 @@ body{
       <h3>Apartamento</h3>
       <p>💰 R$ 180.000</p>
       <p id="pessoas1">👀 6 pessoas vendo agora</p>
-      <a class="whats" href="#">Falar no WhatsApp</a>
+      <a class="whats" href="https://wa.me/5511999999999?text=Tenho%20interesse%20no%20imóvel">
+        Falar no WhatsApp
+      </a>
     </div>
   </div>
 
@@ -183,27 +186,29 @@ function entrar(){
 let index=[0,0];
 let startX=0;
 
-function showSlide(carouselIndex){
-  let carousels=document.querySelectorAll(".carousel")[carouselIndex];
-  let imgs=carousels.querySelectorAll("img");
-  let dotsDiv=carousels.querySelector(".dots");
+function showSlide(i){
+  let carousel = document.querySelectorAll(".carousel")[i];
+  let imgs = carousel.querySelectorAll("img");
+  let dotsDiv = carousel.querySelector(".dots");
 
   dotsDiv.innerHTML="";
 
-  imgs.forEach((img,i)=>{
+  imgs.forEach((img,idx)=>{
     img.classList.remove("active");
-    
+
     let dot=document.createElement("span");
     dot.classList.add("dot");
-    if(i===index[carouselIndex]){
+
+    if(idx===index[i]){
       img.classList.add("active");
       dot.classList.add("active");
     }
+
     dotsDiv.appendChild(dot);
   });
 }
 
-function startTouch(e,i){
+function startTouch(e){
   startX=e.changedTouches[0].screenX;
 }
 
@@ -224,20 +229,24 @@ function endTouch(e,i){
   showSlide(i);
 }
 
-/* AUTOPLAY */
+/* AUTOPLAY CORRIGIDO */
 setInterval(()=>{
-  index[0]++;
-  index[1]++;
-  showSlide(0);
-  showSlide(1);
+  document.querySelectorAll(".carousel").forEach((c,i)=>{
+    let imgs=c.querySelectorAll("img");
+    index[i]=(index[i]+1)%imgs.length;
+    showSlide(i);
+  });
 },3000);
 
-/* ESCASSEZ */
+/* ESCASSEZ CORRIGIDA */
 function atualizarPessoas(id){
   let el=document.getElementById("pessoas"+id);
-  let num=parseInt(el.innerText.match(/\d+/));
+
+  let match = el.innerText.match(/\d+/);
+  let num = match ? parseInt(match[0]) : 10;
 
   let novo=num+(Math.random()>0.5?1:-1);
+
   if(novo<5) novo=5;
   if(novo>15) novo=15;
 
