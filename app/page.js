@@ -57,6 +57,8 @@ function Favorito() {
         left: 10,
         fontSize: 22,
         cursor: "pointer",
+        transform: ativo ? "scale(1.2)" : "scale(1)",
+        transition: "0.2s",
       }}
     >
       {ativo ? "❤️" : "🤍"}
@@ -110,49 +112,26 @@ export default function Home() {
   const [galeria, setGaleria] = useState(null);
   const [modal, setModal] = useState(null);
 
-  /* 🔥 ESCASSEZ DINÂMICA */
-  const [pessoas, setPessoas] = useState([12, 8]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPessoas((prev) =>
-        prev.map((p) => {
-          let novo = p + (Math.random() > 0.5 ? 1 : -1);
-          if (novo < 5) novo = 5;
-          if (novo > 20) novo = 20;
-          return novo;
-        })
-      );
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   function abrirGaleria(imagens, index) {
     setGaleria({ imagens, index });
   }
 
-  /* 🔥 TELA INICIAL */
   if (!start) {
     return (
       <div style={styles.hero}>
         <div style={styles.card}>
           <img src="/corretor.jpg" style={styles.avatar} />
 
-          <h1>Encontre seu imóvel ideal hoje</h1>
-          <p>Oportunidades com alta procura 👇</p>
+          <h1 style={{ marginTop: 10 }}>Seu Corretor de Confiança</h1>
+          <p>Encontrei oportunidades exclusivas pra você 👇</p>
 
           <div style={styles.badge}>
-            ⭐ +120 clientes atendidos
+            ⭐ +120 clientes atendidos com sucesso
           </div>
 
           <button onClick={() => setStart(true)} style={styles.button}>
             Ver imóveis disponíveis
           </button>
-
-          <p style={{ fontSize: 12, marginTop: 10 }}>
-            🔥 Atualizado em tempo real
-          </p>
         </div>
       </div>
     );
@@ -166,14 +145,13 @@ export default function Home() {
         {/* IMÓVEL 1 */}
         <div style={styles.item}>
           <Favorito />
-
           <Carrossel
             imagens={["/imovel1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"]}
             abrirGaleria={abrirGaleria}
           />
 
           <h2>Apartamento 2 Dorms</h2>
-          <p>🔥 Últimas unidades | 👀 {pessoas[0]} pessoas vendo agora</p>
+          <p>🔥 Últimas unidades | 👀 Alta procura</p>
           <strong>R$ 320.000</strong>
 
           <button onClick={() => setModal("Ap 2 Dorms")} style={styles.whatsapp}>
@@ -184,14 +162,13 @@ export default function Home() {
         {/* IMÓVEL 2 */}
         <div style={styles.item}>
           <Favorito />
-
           <Carrossel
             imagens={["/imovel2.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"]}
             abrirGaleria={abrirGaleria}
           />
 
           <h2>Apartamento 3 Dorms</h2>
-          <p>🔥 Alta procura | 👀 {pessoas[1]} pessoas vendo agora</p>
+          <p>🔥 Alta procura | 👀 Muitas visitas</p>
           <strong>R$ 450.000</strong>
 
           <button onClick={() => setModal("Ap 3 Dorms")} style={styles.whatsapp}>
@@ -201,14 +178,7 @@ export default function Home() {
       </div>
 
       {modal && <Formulario imovel={modal} fechar={() => setModal(null)} />}
-
-      {galeria && (
-        <Galeria
-          imagens={galeria.imagens}
-          indexInicial={galeria.index}
-          fechar={() => setGaleria(null)}
-        />
-      )}
+      {galeria && <Galeria imagens={galeria.imagens} indexInicial={galeria.index} fechar={() => setGaleria(null)} />}
     </>
   );
 }
@@ -230,6 +200,7 @@ const styles = {
     width: 320,
     textAlign: "center",
     boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    animation: "fade 1s ease",
   },
 
   avatar: {
@@ -254,7 +225,7 @@ const styles = {
     border: "none",
     borderRadius: 12,
     fontWeight: "bold",
-    boxShadow: "0 5px 15px rgba(0,112,243,0.4)",
+    fontSize: 16,
   },
 
   list: { padding: 20 },
