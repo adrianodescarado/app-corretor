@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-// 🔥 CARROSSEL
+/* 🔥 CARROSSEL */
 function Carrossel({ imagens, abrirGaleria }) {
   const [index, setIndex] = useState(0);
 
@@ -40,17 +40,31 @@ function Carrossel({ imagens, abrirGaleria }) {
       </div>
 
       <div style={styles.overlay}>Ver fotos</div>
-
-      <div style={styles.dots}>
-        {imagens.map((_, i) => (
-          <span key={i} style={{ ...styles.dot, background: i === index ? "#fff" : "#888" }} />
-        ))}
-      </div>
     </div>
   );
 }
 
-// 🔥 GALERIA
+/* ❤️ FAVORITO */
+function Favorito() {
+  const [ativo, setAtivo] = useState(false);
+
+  return (
+    <div
+      onClick={() => setAtivo(!ativo)}
+      style={{
+        position: "absolute",
+        top: 10,
+        left: 10,
+        fontSize: 22,
+        cursor: "pointer",
+      }}
+    >
+      {ativo ? "❤️" : "🤍"}
+    </div>
+  );
+}
+
+/* 🔥 GALERIA */
 function Galeria({ imagens, indexInicial, fechar }) {
   const [index, setIndex] = useState(indexInicial);
 
@@ -65,61 +79,80 @@ function Galeria({ imagens, indexInicial, fechar }) {
   );
 }
 
-// 🔥 APP
+/* 🔥 FORM */
+function Formulario({ imovel, fechar }) {
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+
+  function enviar() {
+    const msg = `Olá, sou ${nome}, telefone ${telefone}. Interesse no ${imovel}`;
+    window.open(`https://wa.me/5511993374417?text=${encodeURIComponent(msg)}`);
+  }
+
+  return (
+    <div style={styles.modal}>
+      <div style={styles.modalBox}>
+        <h3>Falar com corretor</h3>
+
+        <input placeholder="Seu nome" onChange={(e) => setNome(e.target.value)} style={styles.input} />
+        <input placeholder="Seu telefone" onChange={(e) => setTelefone(e.target.value)} style={styles.input} />
+
+        <button onClick={enviar} style={styles.whatsapp}>Enviar</button>
+        <button onClick={fechar} style={styles.closeBtn}>Cancelar</button>
+      </div>
+    </div>
+  );
+}
+
+/* 🔥 APP */
 export default function Home() {
   const [start, setStart] = useState(false);
   const [galeria, setGaleria] = useState(null);
-  const [favoritos, setFavoritos] = useState([]);
-  const [form, setForm] = useState({ nome: "", telefone: "" });
+  const [modal, setModal] = useState(null);
+
+  /* 🔥 ESCASSEZ DINÂMICA */
+  const [pessoas, setPessoas] = useState([12, 8]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("favoritos");
-    if (saved) setFavoritos(JSON.parse(saved));
-  }, []);
+    const interval = setInterval(() => {
+      setPessoas((prev) =>
+        prev.map((p) => {
+          let novo = p + (Math.random() > 0.5 ? 1 : -1);
+          if (novo < 5) novo = 5;
+          if (novo > 20) novo = 20;
+          return novo;
+        })
+      );
+    }, 2000);
 
-  function toggleFavorito(id) {
-    let novaLista;
-    if (favoritos.includes(id)) {
-      novaLista = favoritos.filter((f) => f !== id);
-    } else {
-      novaLista = [...favoritos, id];
-    }
-    setFavoritos(novaLista);
-    localStorage.setItem("favoritos", JSON.stringify(novaLista));
-  }
+    return () => clearInterval(interval);
+  }, []);
 
   function abrirGaleria(imagens, index) {
     setGaleria({ imagens, index });
   }
 
-  function enviarLead(imovel) {
-    const mensagem = `Olá, sou ${form.nome}. Tenho interesse no ${imovel}`;
-    window.open(`https://wa.me/5511993374417?text=${encodeURIComponent(mensagem)}`);
-  }
-
+  /* 🔥 TELA INICIAL */
   if (!start) {
     return (
-      <div style={styles.container}>
+      <div style={styles.hero}>
         <div style={styles.card}>
           <img src="/corretor.jpg" style={styles.avatar} />
-          <h1>Seu Corretor</h1>
-          <p>Imóveis selecionados pra você 👇</p>
 
-          <input
-            placeholder="Seu nome"
-            style={styles.input}
-            onChange={(e) => setForm({ ...form, nome: e.target.value })}
-          />
+          <h1>Encontre seu imóvel ideal hoje</h1>
+          <p>Oportunidades com alta procura 👇</p>
 
-          <input
-            placeholder="Seu telefone"
-            style={styles.input}
-            onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-          />
+          <div style={styles.badge}>
+            ⭐ +120 clientes atendidos
+          </div>
 
           <button onClick={() => setStart(true)} style={styles.button}>
-            Ver imóveis
+            Ver imóveis disponíveis
           </button>
+
+          <p style={{ fontSize: 12, marginTop: 10 }}>
+            🔥 Atualizado em tempo real
+          </p>
         </div>
       </div>
     );
@@ -130,44 +163,45 @@ export default function Home() {
       <div style={styles.list}>
         <h1 style={styles.title}>Imóveis disponíveis</h1>
 
-        {/* IMÓVEL */}
+        {/* IMÓVEL 1 */}
         <div style={styles.item}>
+          <Favorito />
+
           <Carrossel
             imagens={["/imovel1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"]}
             abrirGaleria={abrirGaleria}
           />
 
-          <button onClick={() => toggleFavorito(1)} style={styles.fav}>
-            {favoritos.includes(1) ? "❤️" : "🤍"}
-          </button>
-
           <h2>Apartamento 2 Dorms</h2>
-          <p>🔥 Últimas unidades | 👀 12 pessoas vendo</p>
-          <p>Lazer completo + ótima localização</p>
-
-          <a href="https://www.google.com/maps?q=itaquaquecetuba" target="_blank">
-            <button style={styles.map}>Ver localização</button>
-          </a>
-
+          <p>🔥 Últimas unidades | 👀 {pessoas[0]} pessoas vendo agora</p>
           <strong>R$ 320.000</strong>
 
-          <button onClick={() => enviarLead("Apartamento 2 Dorms - R$320.000")} style={styles.whatsapp}>
-            Falar com corretor agora
+          <button onClick={() => setModal("Ap 2 Dorms")} style={styles.whatsapp}>
+            Falar com corretor
           </button>
         </div>
 
-        {/* PROVA SOCIAL */}
-        <div style={styles.social}>
-          ⭐⭐⭐⭐⭐ Mais de 120 clientes atendidos com sucesso
+        {/* IMÓVEL 2 */}
+        <div style={styles.item}>
+          <Favorito />
+
+          <Carrossel
+            imagens={["/imovel2.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"]}
+            abrirGaleria={abrirGaleria}
+          />
+
+          <h2>Apartamento 3 Dorms</h2>
+          <p>🔥 Alta procura | 👀 {pessoas[1]} pessoas vendo agora</p>
+          <strong>R$ 450.000</strong>
+
+          <button onClick={() => setModal("Ap 3 Dorms")} style={styles.whatsapp}>
+            Falar com corretor
+          </button>
         </div>
       </div>
 
-      {/* BOTÃO FIXO */}
-      <a href="https://wa.me/5511993374417?text=Tenho interesse em um imóvel" target="_blank" style={styles.whatsFloat}>
-        Falar agora
-      </a>
+      {modal && <Formulario imovel={modal} fechar={() => setModal(null)} />}
 
-      {/* GALERIA */}
       {galeria && (
         <Galeria
           imagens={galeria.imagens}
@@ -179,49 +213,143 @@ export default function Home() {
   );
 }
 
-// 🎨 ESTILO
+/* 🎨 ESTILO */
 const styles = {
-  container: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" },
-  card: { background: "#fff", padding: 20, borderRadius: 16, width: 300, textAlign: "center" },
-  avatar: { width: 100, borderRadius: "50%" },
-  input: { width: "100%", padding: 10, marginTop: 10, borderRadius: 8, border: "1px solid #ccc" },
-  button: { marginTop: 10, padding: 12, width: "100%", background: "#0070f3", color: "#fff", border: "none", borderRadius: 10 },
-
-  list: { padding: 20 },
-  title: { textAlign: "center" },
-
-  item: { background: "#fff", padding: 15, borderRadius: 16, marginBottom: 20, position: "relative" },
-
-  carousel: { position: "relative" },
-  image: { width: "100%", borderRadius: 12 },
-  counter: { position: "absolute", top: 10, right: 10, background: "#000", color: "#fff", padding: "4px 8px", borderRadius: 8 },
-  overlay: { position: "absolute", bottom: 10, left: 10, background: "rgba(0,0,0,0.5)", color: "#fff", padding: "5px 10px", borderRadius: 8 },
-
-  dots: { display: "flex", justifyContent: "center", marginTop: 6 },
-  dot: { width: 6, height: 6, borderRadius: "50%", margin: "0 3px" },
-
-  fav: { position: "absolute", top: 10, left: 10, background: "#fff", border: "none", borderRadius: "50%", padding: 8 },
-
-  map: { marginTop: 8, padding: 10, width: "100%", borderRadius: 10 },
-
-  whatsapp: { marginTop: 10, width: "100%", padding: 12, background: "#25D366", color: "#fff", border: "none", borderRadius: 10 },
-
-  social: { textAlign: "center", marginTop: 20 },
-
-  whatsFloat: {
-    position: "fixed",
-    bottom: 20,
-    right: 20,
-    background: "#25D366",
-    color: "#fff",
-    padding: "12px 16px",
-    borderRadius: 30,
-    textDecoration: "none",
+  hero: {
+    height: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "linear-gradient(135deg,#f0f4ff,#ffffff)",
   },
 
-  fullscreen: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#000", display: "flex", justifyContent: "center", alignItems: "center" },
+  card: {
+    background: "#fff",
+    padding: 25,
+    borderRadius: 20,
+    width: 320,
+    textAlign: "center",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+  },
+
+  avatar: {
+    width: 100,
+    borderRadius: "50%",
+  },
+
+  badge: {
+    marginTop: 10,
+    background: "#f5f5f5",
+    padding: 8,
+    borderRadius: 10,
+    fontSize: 13,
+  },
+
+  button: {
+    marginTop: 15,
+    padding: 14,
+    width: "100%",
+    background: "#0070f3",
+    color: "#fff",
+    border: "none",
+    borderRadius: 12,
+    fontWeight: "bold",
+    boxShadow: "0 5px 15px rgba(0,112,243,0.4)",
+  },
+
+  list: { padding: 20 },
+
+  title: { textAlign: "center" },
+
+  item: {
+    background: "#fff",
+    padding: 15,
+    borderRadius: 16,
+    marginBottom: 20,
+    position: "relative",
+  },
+
+  carousel: { position: "relative" },
+
+  image: { width: "100%", borderRadius: 12 },
+
+  counter: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    background: "#000",
+    color: "#fff",
+    padding: "4px 8px",
+    borderRadius: 8,
+  },
+
+  overlay: {
+    position: "absolute",
+    bottom: 10,
+    left: 10,
+    background: "rgba(0,0,0,0.5)",
+    color: "#fff",
+    padding: "5px 10px",
+    borderRadius: 8,
+  },
+
+  whatsapp: {
+    marginTop: 10,
+    width: "100%",
+    padding: 12,
+    background: "#25D366",
+    color: "#fff",
+    border: "none",
+    borderRadius: 10,
+  },
+
+  fullscreen: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "#000",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
   fullImage: { width: "100%" },
-  close: { position: "absolute", top: 20, right: 20, background: "#fff", border: "none" },
-  prev: { position: "absolute", left: 10, top: "50%", background: "#fff", border: "none" },
-  next: { position: "absolute", right: 10, top: "50%", background: "#fff", border: "none" },
+
+  close: { position: "absolute", top: 20, right: 20 },
+  prev: { position: "absolute", left: 10, top: "50%" },
+  next: { position: "absolute", right: 10, top: "50%" },
+
+  modal: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalBox: {
+    background: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    width: 300,
+  },
+
+  input: {
+    width: "100%",
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 8,
+    border: "1px solid #ccc",
+  },
+
+  closeBtn: {
+    marginTop: 10,
+    width: "100%",
+  },
 };
