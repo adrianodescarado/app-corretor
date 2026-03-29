@@ -1,78 +1,88 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
 
-export default function Home() {
-  const [start, setStart] = useState(false);
-  const [index, setIndex] = useState([0, 0]);
-  const [pessoas, setPessoas] = useState([8, 6]);
+import { useState, useEffect } from "react";
 
-  const startX = useRef(0);
+// 🔥 CARROSSEL PREMIUM
+function Carrossel({ imagens }) {
+  const [index, setIndex] = useState(0);
 
-  const imagens = [
-    ["/imovel1-1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"],
-    ["/imovel2-1.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"],
-  ];
-
-  /* AUTOPLAY */
+  // 👉 AUTOPLAY
   useEffect(() => {
     const interval = setInterval(() => {
-      setIndex((prev) =>
-        prev.map((i, idx) => (i + 1) % imagens[idx].length)
-      );
-    }, 3000);
+      setIndex((prev) => (prev + 1) % imagens.length);
+    }, 3500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [imagens.length]);
 
-  /* ESCASSEZ */
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPessoas((prev) =>
-        prev.map((p) => {
-          let novo = p + (Math.random() > 0.5 ? 1 : -1);
-          if (novo < 5) novo = 5;
-          if (novo > 15) novo = 15;
-          return novo;
-        })
-      );
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // 👉 SWIPE
+  let startX = 0;
 
   function handleTouchStart(e) {
-    startX.current = e.changedTouches[0].screenX;
+    startX = e.touches[0].clientX;
   }
 
-  function handleTouchEnd(e, i) {
-    let endX = e.changedTouches[0].screenX;
+  function handleTouchEnd(e) {
+    let endX = e.changedTouches[0].clientX;
 
-    setIndex((prev) => {
-      const novo = [...prev];
+    if (startX - endX > 50) {
+      setIndex((prev) => (prev + 1) % imagens.length);
+    }
 
-      if (startX.current > endX) {
-        novo[i]++;
-      } else {
-        novo[i]--;
-      }
-
-      if (novo[i] < 0) novo[i] = imagens[i].length - 1;
-      if (novo[i] >= imagens[i].length) novo[i] = 0;
-
-      return novo;
-    });
+    if (endX - startX > 50) {
+      setIndex((prev) => (prev - 1 + imagens.length) % imagens.length);
+    }
   }
+
+  return (
+    <div
+      style={styles.carousel}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      <img
+        src={imagens[index]}
+        style={{
+          ...styles.image,
+          opacity: 1,
+          transition: "opacity 0.4s ease",
+        }}
+      />
+
+      {/* 🔢 CONTADOR */}
+      <div style={styles.counter}>
+        {index + 1}/{imagens.length}
+      </div>
+
+      {/* ⚫ BOLINHAS */}
+      <div style={styles.dots}>
+        {imagens.map((_, i) => (
+          <span
+            key={i}
+            style={{
+              ...styles.dot,
+              background: i === index ? "#000" : "#ccc",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// 🔥 PÁGINA
+export default function Home() {
+  const [start, setStart] = useState(false);
 
   if (!start) {
     return (
-      <div style={styles.hero}>
+      <div style={styles.container}>
         <div style={styles.card}>
           <img src="/corretor.jpg" style={styles.avatar} />
-          <h2>Encontre seu imóvel ideal</h2>
-          <p>Selecionamos as melhores oportunidades 👇</p>
-          <p>⭐ +120 clientes atendidos</p>
+          <h1>Seu Corretor</h1>
+          <p>Separei imóveis exclusivos pra você 👇</p>
 
-          <button style={styles.btn} onClick={() => setStart(true)}>
+          <button onClick={() => setStart(true)} style={styles.button}>
             Ver imóveis
           </button>
         </div>
@@ -81,137 +91,149 @@ export default function Home() {
   }
 
   return (
-    <div style={styles.container}>
-      {[0, 1].map((i) => (
-        <div key={i} style={styles.imovel}>
-          <div
-            style={styles.carousel}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={(e) => handleTouchEnd(e, i)}
-          >
-            <img
-              src={imagens[i][index[i]]}
-              style={styles.img}
-            />
+    <div style={styles.list}>
+      <h1 style={styles.title}>Imóveis Selecionados</h1>
 
-            <div style={styles.dots}>
-              {imagens[i].map((_, idx) => (
-                <span
-                  key={idx}
-                  style={{
-                    ...styles.dot,
-                    opacity: idx === index[i] ? 1 : 0.3,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+      {/* 🏠 IMÓVEL 1 */}
+      <div style={styles.item}>
+        <Carrossel
+          imagens={[
+            "/imovel1.jpg",
+            "/imovel1-2.jpg",
+            "/imovel1-3.jpg",
+          ]}
+        />
+        <h2>Apartamento 2 Dorms</h2>
+        <p>Lazer completo + localização estratégica</p>
+        <strong>R$ 320.000</strong>
 
-          <div style={styles.info}>
-            <h3>{i === 0 ? "Casa moderna" : "Apartamento"}</h3>
-            <p>💰 {i === 0 ? "R$ 250.000" : "R$ 180.000"}</p>
-            <p>👀 {pessoas[i]} pessoas vendo agora</p>
+        <a href="https://wa.me/5511993374417" target="_blank">
+          <button style={styles.whatsapp}>Falar no WhatsApp</button>
+        </a>
+      </div>
 
-            <a
-              style={styles.whats}
-              href="https://wa.me/5511999999999?text=Tenho%20interesse%20no%20imóvel"
-              target="_blank"
-            >
-              Falar no WhatsApp
-            </a>
-          </div>
-        </div>
-      ))}
+      {/* 🏠 IMÓVEL 2 */}
+      <div style={styles.item}>
+        <Carrossel
+          imagens={[
+            "/imovel2.jpg",
+            "/imovel2-2.jpg",
+            "/imovel2-3.jpg",
+          ]}
+        />
+        <h2>Apartamento 3 Dorms</h2>
+        <p>Varanda gourmet + vaga coberta</p>
+        <strong>R$ 450.000</strong>
+
+        <a href="https://wa.me/5511999999999" target="_blank">
+          <button style={styles.whatsapp}>Falar no WhatsApp</button>
+        </a>
+      </div>
     </div>
   );
 }
 
+// 🎨 ESTILO PREMIUM
 const styles = {
-  hero: {
-    height: "100vh",
+  container: {
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    background: "#f5f5f5",
   },
 
   card: {
-    background: "linear-gradient(135deg,#fff,#eef3ff)",
-    padding: 30,
+    background: "#fff",
+    padding: 25,
     borderRadius: 20,
     textAlign: "center",
     width: 320,
-    boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
   },
 
   avatar: {
     width: 100,
     height: 100,
     borderRadius: "50%",
-    border: "3px solid #0070f3",
+    objectFit: "cover",
+    marginBottom: 10,
   },
 
-  btn: {
-    marginTop: 20,
-    padding: 15,
+  button: {
+    marginTop: 15,
+    padding: 14,
+    width: "100%",
     background: "#0070f3",
     color: "#fff",
     border: "none",
     borderRadius: 12,
-    width: "100%",
     fontWeight: "bold",
-    cursor: "pointer",
+    fontSize: 16,
   },
 
-  container: {
+  list: {
     padding: 20,
-    background: "#f2f2f2",
+    background: "#f5f5f5",
+    minHeight: "100vh",
   },
 
-  imovel: {
-    background: "#fff",
-    borderRadius: 15,
+  title: {
+    textAlign: "center",
     marginBottom: 20,
-    overflow: "hidden",
-    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+  },
+
+  item: {
+    background: "#fff",
+    padding: 15,
+    borderRadius: 18,
+    marginBottom: 20,
+    boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
   },
 
   carousel: {
     position: "relative",
   },
 
-  img: {
+  image: {
     width: "100%",
+    borderRadius: 14,
+    marginBottom: 10,
+  },
+
+  counter: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    background: "rgba(0,0,0,0.6)",
+    color: "#fff",
+    padding: "4px 8px",
+    borderRadius: 8,
+    fontSize: 12,
   },
 
   dots: {
-    position: "absolute",
-    bottom: 10,
-    width: "100%",
-    textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 6,
   },
 
   dot: {
-    height: 8,
     width: 8,
-    margin: 3,
-    background: "#fff",
+    height: 8,
     borderRadius: "50%",
-    display: "inline-block",
+    margin: "0 4px",
   },
 
-  info: {
-    padding: 15,
-  },
-
-  whats: {
-    display: "block",
-    marginTop: 10,
-    background: "green",
+  whatsapp: {
+    marginTop: 12,
+    width: "100%",
+    padding: 14,
+    background: "#25D366",
     color: "#fff",
-    textAlign: "center",
-    padding: 12,
-    borderRadius: 10,
-    textDecoration: "none",
+    border: "none",
+    borderRadius: 12,
     fontWeight: "bold",
+    fontSize: 15,
   },
 };
