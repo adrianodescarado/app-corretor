@@ -1,136 +1,88 @@
 "use client";
-
 import { useState, useEffect } from "react";
 
-/* 🔥 CARROSSEL */
-function Carrossel({ imagens, abrirGaleria }) {
-  const [index, setIndex] = useState(0);
+export default function Home() {
+  const [start, setStart] = useState(false);
+
+  /* ESCASSEZ */
+  const [pessoas, setPessoas] = useState([8, 6]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % imagens.length);
-    }, 4000);
+      setPessoas((prev) =>
+        prev.map((p) => {
+          let novo = p + (Math.random() > 0.5 ? 1 : -1);
+          if (novo < 5) novo = 5;
+          if (novo > 15) novo = 15;
+          return novo;
+        })
+      );
+    }, 2000);
+
     return () => clearInterval(interval);
-  }, [imagens.length]);
+  }, []);
 
-  let startX = 0;
+  /* CARROSSEL */
+  const [index, setIndex] = useState([0, 0]);
+  const [touchStart, setTouchStart] = useState(0);
 
-  function handleTouchStart(e) {
-    startX = e.touches[0].clientX;
-  }
+  const images = [
+    ["/imovel1-1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"],
+    ["/imovel2-1.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"],
+  ];
 
-  function handleTouchEnd(e) {
-    let endX = e.changedTouches[0].clientX;
+  const next = (i) => {
+    setIndex((prev) =>
+      prev.map((v, idx) =>
+        idx === i ? (v + 1) % images[i].length : v
+      )
+    );
+  };
 
-    if (startX - endX > 50) setIndex((p) => (p + 1) % imagens.length);
-    if (endX - startX > 50) setIndex((p) => (p - 1 + imagens.length) % imagens.length);
-  }
+  useEffect(() => {
+    const interval = setInterval(() => {
+      next(0);
+      next(1);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
-  return (
-    <div
-      style={styles.carousel}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onClick={() => abrirGaleria(imagens, index)}
-    >
-      <img src={imagens[index]} style={styles.image} />
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
+  };
 
-      <div style={styles.counter}>
-        {index + 1}/{imagens.length}
-      </div>
+  const handleTouchEnd = (e, i) => {
+    const end = e.changedTouches[0].clientX;
 
-      <div style={styles.overlay}>Ver fotos</div>
-    </div>
-  );
-}
+    if (touchStart > end) next(i);
+    else
+      setIndex((prev) =>
+        prev.map((v, idx) =>
+          idx === i
+            ? v === 0
+              ? images[i].length - 1
+              : v - 1
+            : v
+        )
+      );
+  };
 
-/* ❤️ FAVORITO */
-function Favorito() {
-  const [ativo, setAtivo] = useState(false);
-
-  return (
-    <div
-      onClick={() => setAtivo(!ativo)}
-      style={{
-        position: "absolute",
-        top: 10,
-        left: 10,
-        fontSize: 22,
-        cursor: "pointer",
-        transform: ativo ? "scale(1.2)" : "scale(1)",
-        transition: "0.2s",
-      }}
-    >
-      {ativo ? "❤️" : "🤍"}
-    </div>
-  );
-}
-
-/* 🔥 GALERIA */
-function Galeria({ imagens, indexInicial, fechar }) {
-  const [index, setIndex] = useState(indexInicial);
-
-  return (
-    <div style={styles.fullscreen}>
-      <img src={imagens[index]} style={styles.fullImage} />
-
-      <button onClick={fechar} style={styles.close}>X</button>
-      <button onClick={() => setIndex((index - 1 + imagens.length) % imagens.length)} style={styles.prev}>‹</button>
-      <button onClick={() => setIndex((index + 1) % imagens.length)} style={styles.next}>›</button>
-    </div>
-  );
-}
-
-/* 🔥 FORM */
-function Formulario({ imovel, fechar }) {
-  const [nome, setNome] = useState("");
-  const [telefone, setTelefone] = useState("");
-
-  function enviar() {
-    const msg = `Olá, sou ${nome}, telefone ${telefone}. Interesse no ${imovel}`;
-    window.open(`https://wa.me/5511993374417?text=${encodeURIComponent(msg)}`);
-  }
-
-  return (
-    <div style={styles.modal}>
-      <div style={styles.modalBox}>
-        <h3>Falar com corretor</h3>
-
-        <input placeholder="Seu nome" onChange={(e) => setNome(e.target.value)} style={styles.input} />
-        <input placeholder="Seu telefone" onChange={(e) => setTelefone(e.target.value)} style={styles.input} />
-
-        <button onClick={enviar} style={styles.whatsapp}>Enviar</button>
-        <button onClick={fechar} style={styles.closeBtn}>Cancelar</button>
-      </div>
-    </div>
-  );
-}
-
-/* 🔥 APP */
-export default function Home() {
-  const [start, setStart] = useState(false);
-  const [galeria, setGaleria] = useState(null);
-  const [modal, setModal] = useState(null);
-
-  function abrirGaleria(imagens, index) {
-    setGaleria({ imagens, index });
-  }
-
+  /* TELA INICIAL */
   if (!start) {
     return (
       <div style={styles.hero}>
         <div style={styles.card}>
           <img src="/corretor.jpg" style={styles.avatar} />
 
-          <h1 style={{ marginTop: 10 }}>Seu Corretor de Confiança</h1>
-          <p>Encontrei oportunidades exclusivas pra você 👇</p>
+          <h2>Encontre seu imóvel ideal</h2>
+          <p>Selecionamos as melhores oportunidades 👇</p>
 
           <div style={styles.badge}>
-            ⭐ +120 clientes atendidos com sucesso
+            ⭐ +120 clientes atendidos
           </div>
 
-          <button onClick={() => setStart(true)} style={styles.button}>
-            Ver imóveis disponíveis
+          <button onClick={() => setStart(true)} style={styles.btn}>
+            Ver imóveis
           </button>
         </div>
       </div>
@@ -138,189 +90,156 @@ export default function Home() {
   }
 
   return (
-    <>
-      <div style={styles.list}>
-        <h1 style={styles.title}>Imóveis disponíveis</h1>
+    <div style={styles.container}>
+      {[0, 1].map((i) => (
+        <div key={i} style={styles.imovel}>
+          
+          {/* CARROSSEL */}
+          <div
+            style={styles.carousel}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={(e) => handleTouchEnd(e, i)}
+          >
+            {images[i].map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                style={{
+                  ...styles.img,
+                  display: index[i] === idx ? "block" : "none",
+                }}
+              />
+            ))}
 
-        {/* IMÓVEL 1 */}
-        <div style={styles.item}>
-          <Favorito />
-          <Carrossel
-            imagens={["/imovel1.jpg", "/imovel1-2.jpg", "/imovel1-3.jpg"]}
-            abrirGaleria={abrirGaleria}
-          />
+            {/* BOLINHAS */}
+            <div style={styles.dots}>
+              {images[i].map((_, d) => (
+                <span
+                  key={d}
+                  style={{
+                    ...styles.dot,
+                    opacity: index[i] === d ? 1 : 0.4,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
 
-          <h2>Apartamento 2 Dorms</h2>
-          <p>🔥 Últimas unidades | 👀 Alta procura</p>
-          <strong>R$ 320.000</strong>
+          {/* INFO */}
+          <div style={styles.info}>
+            <h3>{i === 0 ? "Casa moderna" : "Apartamento"}</h3>
+            <p>💰 {i === 0 ? "R$ 250.000" : "R$ 180.000"}</p>
 
-          <button onClick={() => setModal("Ap 2 Dorms")} style={styles.whatsapp}>
-            Falar com corretor
-          </button>
+            <p>
+              🔥 Últimas unidades | 👀 {pessoas[i]} pessoas vendo agora
+            </p>
+
+            <a style={styles.whats} href="#">
+              Falar no WhatsApp
+            </a>
+          </div>
         </div>
-
-        {/* IMÓVEL 2 */}
-        <div style={styles.item}>
-          <Favorito />
-          <Carrossel
-            imagens={["/imovel2.jpg", "/imovel2-2.jpg", "/imovel2-3.jpg"]}
-            abrirGaleria={abrirGaleria}
-          />
-
-          <h2>Apartamento 3 Dorms</h2>
-          <p>🔥 Alta procura | 👀 Muitas visitas</p>
-          <strong>R$ 450.000</strong>
-
-          <button onClick={() => setModal("Ap 3 Dorms")} style={styles.whatsapp}>
-            Falar com corretor
-          </button>
-        </div>
-      </div>
-
-      {modal && <Formulario imovel={modal} fechar={() => setModal(null)} />}
-      {galeria && <Galeria imagens={galeria.imagens} indexInicial={galeria.index} fechar={() => setGaleria(null)} />}
-    </>
+      ))}
+    </div>
   );
 }
 
-/* 🎨 ESTILO */
+/* ESTILO */
 const styles = {
   hero: {
     height: "100vh",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(135deg,#f0f4ff,#ffffff)",
+    background: "#f2f2f2",
   },
 
   card: {
-    background: "#fff",
-    padding: 25,
+    background: "linear-gradient(135deg,#fff,#eef3ff)",
+    padding: 30,
     borderRadius: 20,
-    width: 320,
     textAlign: "center",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-    animation: "fade 1s ease",
+    width: 320,
+    boxShadow: "0 15px 40px rgba(0,0,0,0.1)",
   },
 
   avatar: {
     width: 100,
+    height: 100,
     borderRadius: "50%",
+    border: "3px solid #0070f3",
+    objectFit: "cover",
   },
 
   badge: {
     marginTop: 10,
-    background: "#f5f5f5",
+    background: "#fff",
     padding: 8,
     borderRadius: 10,
     fontSize: 13,
   },
 
-  button: {
-    marginTop: 15,
-    padding: 14,
-    width: "100%",
+  btn: {
+    marginTop: 20,
+    padding: 15,
     background: "#0070f3",
     color: "#fff",
     border: "none",
     borderRadius: 12,
+    width: "100%",
     fontWeight: "bold",
-    fontSize: 16,
   },
 
-  list: { padding: 20 },
+  container: {
+    padding: 20,
+    background: "#f2f2f2",
+  },
 
-  title: { textAlign: "center" },
-
-  item: {
+  imovel: {
     background: "#fff",
-    padding: 15,
-    borderRadius: 16,
+    borderRadius: 15,
     marginBottom: 20,
+    overflow: "hidden",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+  },
+
+  carousel: {
     position: "relative",
   },
 
-  carousel: { position: "relative" },
-
-  image: { width: "100%", borderRadius: 12 },
-
-  counter: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    background: "#000",
-    color: "#fff",
-    padding: "4px 8px",
-    borderRadius: 8,
+  img: {
+    width: "100%",
   },
 
-  overlay: {
+  dots: {
     position: "absolute",
     bottom: 10,
-    left: 10,
-    background: "rgba(0,0,0,0.5)",
-    color: "#fff",
-    padding: "5px 10px",
-    borderRadius: 8,
-  },
-
-  whatsapp: {
-    marginTop: 10,
     width: "100%",
-    padding: 12,
-    background: "#25D366",
-    color: "#fff",
-    border: "none",
-    borderRadius: 10,
+    textAlign: "center",
   },
 
-  fullscreen: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    background: "#000",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  fullImage: { width: "100%" },
-
-  close: { position: "absolute", top: 20, right: 20 },
-  prev: { position: "absolute", left: 10, top: "50%" },
-  next: { position: "absolute", right: 10, top: "50%" },
-
-  modal: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    background: "rgba(0,0,0,0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  modalBox: {
+  dot: {
+    height: 8,
+    width: 8,
+    margin: 3,
     background: "#fff",
-    padding: 20,
-    borderRadius: 12,
-    width: 300,
+    borderRadius: "50%",
+    display: "inline-block",
   },
 
-  input: {
-    width: "100%",
-    padding: 10,
-    marginTop: 10,
-    borderRadius: 8,
-    border: "1px solid #ccc",
+  info: {
+    padding: 15,
   },
 
-  closeBtn: {
+  whats: {
+    display: "block",
     marginTop: 10,
-    width: "100%",
+    background: "green",
+    color: "#fff",
+    textAlign: "center",
+    padding: 12,
+    borderRadius: 10,
+    textDecoration: "none",
+    fontWeight: "bold",
   },
 };
