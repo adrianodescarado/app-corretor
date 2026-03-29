@@ -102,7 +102,7 @@ export default function Home() {
       <div style={styles.container}>
         <div style={styles.card}>
           <img src="/corretor.jpg" style={styles.avatar} />
-          <h1>Seu Corretor</h1>
+          <h1>Corretor Viola</h1>
           <p>Imóveis selecionados pra você 👇</p>
 
           <input
