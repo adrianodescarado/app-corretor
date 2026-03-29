@@ -1,25 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// 🔥 CARROSSEL
+// 🔥 CARROSSEL COMPLETO (SWIPE + AUTOPLAY + BOLINHAS)
 function Carrossel({ imagens }) {
   const [index, setIndex] = useState(0);
 
-  function prev() {
-    setIndex((index - 1 + imagens.length) % imagens.length);
+  // 👉 AUTOPLAY
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % imagens.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [imagens.length]);
+
+  // 👉 SWIPE
+  let startX = 0;
+
+  function handleTouchStart(e) {
+    startX = e.touches[0].clientX;
   }
 
-  function next() {
-    setIndex((index + 1) % imagens.length);
+  function handleTouchEnd(e) {
+    let endX = e.changedTouches[0].clientX;
+
+    if (startX - endX > 50) {
+      setIndex((prev) => (prev + 1) % imagens.length);
+    }
+
+    if (endX - startX > 50) {
+      setIndex((prev) => (prev - 1 + imagens.length) % imagens.length);
+    }
   }
 
   return (
-    <div style={styles.carousel}>
+    <div
+      style={styles.carousel}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <img src={imagens[index]} style={styles.image} />
 
-      <button onClick={prev} style={styles.prev}>‹</button>
-      <button onClick={next} style={styles.next}>›</button>
+      {/* 👉 BOLINHAS */}
+      <div style={styles.dots}>
+        {imagens.map((_, i) => (
+          <span
+            key={i}
+            style={{
+              ...styles.dot,
+              background: i === index ? "#000" : "#ccc",
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -55,7 +89,7 @@ export default function Home() {
           imagens={[
             "/imovel1.jpg",
             "/imovel1-2.jpg",
-            "/imovel1-3.jpg"
+            "/imovel1-3.jpg",
           ]}
         />
         <h2>Apartamento 2 Dorms</h2>
@@ -73,7 +107,7 @@ export default function Home() {
           imagens={[
             "/imovel2.jpg",
             "/imovel2-2.jpg",
-            "/imovel2-3.jpg"
+            "/imovel2-3.jpg",
           ]}
         />
         <h2>Apartamento 3 Dorms</h2>
@@ -142,30 +176,20 @@ const styles = {
   carousel: {
     position: "relative",
   },
-  prev: {
-    position: "absolute",
-    top: "50%",
-    left: 10,
-    transform: "translateY(-50%)",
-    background: "rgba(0,0,0,0.5)",
-    color: "#fff",
-    border: "none",
-    padding: "8px 12px",
-    borderRadius: 8,
-    cursor: "pointer",
+
+  // 👉 BOLINHAS
+  dots: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 8,
   },
-  next: {
-    position: "absolute",
-    top: "50%",
-    right: 10,
-    transform: "translateY(-50%)",
-    background: "rgba(0,0,0,0.5)",
-    color: "#fff",
-    border: "none",
-    padding: "8px 12px",
-    borderRadius: 8,
-    cursor: "pointer",
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: "50%",
+    margin: "0 4px",
   },
+
   whatsapp: {
     marginTop: 10,
     width: "100%",
