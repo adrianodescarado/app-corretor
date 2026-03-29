@@ -22,13 +22,8 @@ function Carrossel({ imagens, abrirGaleria }) {
   function handleTouchEnd(e) {
     let endX = e.changedTouches[0].clientX;
 
-    if (startX - endX > 50) {
-      setIndex((prev) => (prev + 1) % imagens.length);
-    }
-
-    if (endX - startX > 50) {
-      setIndex((prev) => (prev - 1 + imagens.length) % imagens.length);
-    }
+    if (startX - endX > 50) setIndex((p) => (p + 1) % imagens.length);
+    if (endX - startX > 50) setIndex((p) => (p - 1 + imagens.length) % imagens.length);
   }
 
   return (
@@ -40,31 +35,16 @@ function Carrossel({ imagens, abrirGaleria }) {
     >
       <img src={imagens[index]} style={styles.image} />
 
-      {/* CONTADOR */}
       <div style={styles.counter}>
         {index + 1}/{imagens.length}
       </div>
 
-      {/* OVERLAY */}
       <div style={styles.overlay}>Ver fotos</div>
-
-      {/* DOTS */}
-      <div style={styles.dots}>
-        {imagens.map((_, i) => (
-          <span
-            key={i}
-            style={{
-              ...styles.dot,
-              background: i === index ? "#fff" : "#888",
-            }}
-          />
-        ))}
-      </div>
     </div>
   );
 }
 
-// 🔥 GALERIA FULLSCREEN
+// 🔥 GALERIA
 function Galeria({ imagens, indexInicial, fechar }) {
   const [index, setIndex] = useState(indexInicial);
 
@@ -73,26 +53,42 @@ function Galeria({ imagens, indexInicial, fechar }) {
       <img src={imagens[index]} style={styles.fullImage} />
 
       <button onClick={fechar} style={styles.close}>X</button>
-
       <button onClick={() => setIndex((index - 1 + imagens.length) % imagens.length)} style={styles.prev}>‹</button>
       <button onClick={() => setIndex((index + 1) % imagens.length)} style={styles.next}>›</button>
     </div>
   );
 }
 
-// 🔥 PÁGINA
+// 🔥 FORM MODAL
+function Formulario({ imovel, fechar }) {
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+
+  function enviar() {
+    const msg = `Olá, sou ${nome}, telefone ${telefone}. Tenho interesse no ${imovel}`;
+    window.open(`https://wa.me/5511993374417?text=${encodeURIComponent(msg)}`);
+  }
+
+  return (
+    <div style={styles.modal}>
+      <div style={styles.modalBox}>
+        <h3>Falar com corretor</h3>
+
+        <input placeholder="Seu nome" onChange={(e) => setNome(e.target.value)} style={styles.input} />
+        <input placeholder="Seu telefone" onChange={(e) => setTelefone(e.target.value)} style={styles.input} />
+
+        <button onClick={enviar} style={styles.whatsapp}>Enviar</button>
+        <button onClick={fechar} style={styles.closeBtn}>Cancelar</button>
+      </div>
+    </div>
+  );
+}
+
+// 🔥 APP
 export default function Home() {
   const [start, setStart] = useState(false);
   const [galeria, setGaleria] = useState(null);
-  const [favoritos, setFavoritos] = useState([]);
-
-  function toggleFavorito(id) {
-    if (favoritos.includes(id)) {
-      setFavoritos(favoritos.filter((f) => f !== id));
-    } else {
-      setFavoritos([...favoritos, id]);
-    }
-  }
+  const [modal, setModal] = useState(null);
 
   function abrirGaleria(imagens, index) {
     setGaleria({ imagens, index });
@@ -104,7 +100,7 @@ export default function Home() {
         <div style={styles.card}>
           <img src="/corretor.jpg" style={styles.avatar} />
           <h1>Seu Corretor</h1>
-          <p>Imóveis selecionados para você 👇</p>
+          <p>Separei imóveis pra você 👇</p>
 
           <button onClick={() => setStart(true)} style={styles.button}>
             Ver imóveis
@@ -117,7 +113,7 @@ export default function Home() {
   return (
     <>
       <div style={styles.list}>
-        <h1 style={styles.title}>Imóveis</h1>
+        <h1 style={styles.title}>Imóveis disponíveis</h1>
 
         {/* IMÓVEL 1 */}
         <div style={styles.item}>
@@ -126,13 +122,13 @@ export default function Home() {
             abrirGaleria={abrirGaleria}
           />
 
-          <button onClick={() => toggleFavorito(1)} style={styles.fav}>
-            {favoritos.includes(1) ? "❤️" : "🤍"}
-          </button>
-
           <h2>Apartamento 2 Dorms</h2>
-          <p>Lazer completo + localização estratégica</p>
+          <p>🔥 Últimas unidades | 👀 12 pessoas vendo</p>
           <strong>R$ 320.000</strong>
+
+          <button onClick={() => setModal("Ap 2 Dorms - 320k")} style={styles.whatsapp}>
+            Falar com corretor
+          </button>
         </div>
 
         {/* IMÓVEL 2 */}
@@ -142,20 +138,18 @@ export default function Home() {
             abrirGaleria={abrirGaleria}
           />
 
-          <button onClick={() => toggleFavorito(2)} style={styles.fav}>
-            {favoritos.includes(2) ? "❤️" : "🤍"}
-          </button>
-
           <h2>Apartamento 3 Dorms</h2>
-          <p>Varanda gourmet + vaga coberta</p>
+          <p>🔥 Alta procura | 👀 8 pessoas vendo</p>
           <strong>R$ 450.000</strong>
+
+          <button onClick={() => setModal("Ap 3 Dorms - 450k")} style={styles.whatsapp}>
+            Falar com corretor
+          </button>
         </div>
       </div>
 
-      {/* WHATS FIXO */}
-      <a href="https://wa.me/5511993374417" target="_blank" style={styles.whatsFloat}>
-        WhatsApp
-      </a>
+      {/* MODAL FORM */}
+      {modal && <Formulario imovel={modal} fechar={() => setModal(null)} />}
 
       {/* GALERIA */}
       {galeria && (
@@ -171,142 +165,31 @@ export default function Home() {
 
 // 🎨 ESTILO
 const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-    background: "#f5f5f5",
-  },
-  card: {
-    background: "#fff",
-    padding: 25,
-    borderRadius: 20,
-    textAlign: "center",
-    width: 320,
-  },
-  avatar: {
-    width: 100,
-    borderRadius: "50%",
-  },
-  button: {
-    marginTop: 15,
-    padding: 12,
-    width: "100%",
-    background: "#0070f3",
-    color: "#fff",
-    border: "none",
-    borderRadius: 10,
-  },
-  list: {
-    padding: 20,
-  },
-  title: {
-    textAlign: "center",
-  },
-  item: {
-    background: "#fff",
-    padding: 15,
-    borderRadius: 16,
-    marginBottom: 20,
-    position: "relative",
-  },
-  carousel: {
-    position: "relative",
-  },
-  image: {
-    width: "100%",
-    borderRadius: 12,
-  },
-  counter: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    background: "#000",
-    color: "#fff",
-    padding: "3px 8px",
-    borderRadius: 8,
-    fontSize: 12,
-  },
-  overlay: {
-    position: "absolute",
-    bottom: 10,
-    left: 10,
-    background: "rgba(0,0,0,0.5)",
-    color: "#fff",
-    padding: "5px 10px",
-    borderRadius: 8,
-    fontSize: 12,
-  },
-  dots: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: 6,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: "50%",
-    margin: "0 3px",
-  },
-  fav: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    background: "#fff",
-    border: "none",
-    borderRadius: "50%",
-    padding: 8,
-    fontSize: 18,
-  },
-  whatsFloat: {
-    position: "fixed",
-    bottom: 20,
-    right: 20,
-    background: "#25D366",
-    color: "#fff",
-    padding: "12px 16px",
-    borderRadius: 30,
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  fullscreen: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    background: "#000",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 999,
-  },
-  fullImage: {
-    width: "100%",
-  },
-  close: {
-    position: "absolute",
-    top: 20,
-    right: 20,
-    background: "#fff",
-    border: "none",
-    padding: 10,
-  },
-  prev: {
-    position: "absolute",
-    left: 10,
-    top: "50%",
-    background: "#fff",
-    border: "none",
-    padding: 10,
-  },
-  next: {
-    position: "absolute",
-    right: 10,
-    top: "50%",
-    background: "#fff",
-    border: "none",
-    padding: 10,
-  },
+  container: { display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" },
+  card: { background: "#fff", padding: 20, borderRadius: 16, width: 300, textAlign: "center" },
+  avatar: { width: 100, borderRadius: "50%" },
+  button: { marginTop: 10, padding: 12, width: "100%", background: "#0070f3", color: "#fff", border: "none", borderRadius: 10 },
+
+  list: { padding: 20 },
+  title: { textAlign: "center" },
+
+  item: { background: "#fff", padding: 15, borderRadius: 16, marginBottom: 20 },
+
+  carousel: { position: "relative" },
+  image: { width: "100%", borderRadius: 12 },
+  counter: { position: "absolute", top: 10, right: 10, background: "#000", color: "#fff", padding: "4px 8px", borderRadius: 8 },
+  overlay: { position: "absolute", bottom: 10, left: 10, background: "rgba(0,0,0,0.5)", color: "#fff", padding: "5px 10px", borderRadius: 8 },
+
+  whatsapp: { marginTop: 10, width: "100%", padding: 12, background: "#25D366", color: "#fff", border: "none", borderRadius: 10 },
+
+  fullscreen: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "#000", display: "flex", justifyContent: "center", alignItems: "center" },
+  fullImage: { width: "100%" },
+  close: { position: "absolute", top: 20, right: 20, background: "#fff", border: "none" },
+  prev: { position: "absolute", left: 10, top: "50%", background: "#fff", border: "none" },
+  next: { position: "absolute", right: 10, top: "50%", background: "#fff", border: "none" },
+
+  modal: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center" },
+  modalBox: { background: "#fff", padding: 20, borderRadius: 12, width: 300 },
+  input: { width: "100%", padding: 10, marginTop: 10, borderRadius: 8, border: "1px solid #ccc" },
+  closeBtn: { marginTop: 10, width: "100%" },
 };
